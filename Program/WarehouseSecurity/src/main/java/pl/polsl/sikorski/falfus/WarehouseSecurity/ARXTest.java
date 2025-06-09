@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.deidentifier.arx.*;
 import org.deidentifier.arx.ARXLattice.ARXNode;
 import org.deidentifier.arx.AttributeType.Hierarchy;
@@ -13,66 +15,20 @@ import org.deidentifier.arx.AttributeType.Hierarchy.DefaultHierarchy;
 import org.deidentifier.arx.Data.DefaultData;
 import org.deidentifier.arx.criteria.KAnonymity;
 
+import pl.polsl.sikorski.falfus.WarehouseSecurity.KAnonymityTesting.Record;
+import static pl.polsl.sikorski.falfus.WarehouseSecurity.KAnonymityTesting.isKAnonymous;
+import static pl.polsl.sikorski.falfus.WarehouseSecurity.KAnonymityTesting.loadDataset;
+import static pl.polsl.sikorski.falfus.WarehouseSecurity.KAnonymityTesting.printResult;
+
 /**
  *
- * @author sikor
+ * @author Kacper Sikorski
+ * @author Mateusz Falfus
  */
 public class ARXTest {
 
-    static void printResult(final ARXResult result, final Data data) {
-
-        // Print time
-        final DecimalFormat df1 = new DecimalFormat("#####0.00");
-        final String sTotal = df1.format(result.getTime() / 1000d) + "s";
-        System.out.println(" - Time needed: " + sTotal);
-
-        // Extract
-        final ARXNode optimum = result.getGlobalOptimum();
-        final List<String> qis = new ArrayList<>(data.getDefinition().getQuasiIdentifyingAttributes());
-
-        if (optimum == null) {
-            System.out.println(" - No solution found!");
-            return;
-        }
-
-        // Initialize
-        final StringBuffer[] identifiers = new StringBuffer[qis.size()];
-        final StringBuffer[] generalizations = new StringBuffer[qis.size()];
-        int lengthI = 0;
-        int lengthG = 0;
-        for (int i = 0; i < qis.size(); i++) {
-            identifiers[i] = new StringBuffer();
-            generalizations[i] = new StringBuffer();
-            identifiers[i].append(qis.get(i));
-            generalizations[i].append(optimum.getGeneralization(qis.get(i)));
-            if (data.getDefinition().isHierarchyAvailable(qis.get(i))) {
-                generalizations[i].append("/").append(data.getDefinition().getHierarchy(qis.get(i))[0].length - 1);
-            }
-            lengthI = Math.max(lengthI, identifiers[i].length());
-            lengthG = Math.max(lengthG, generalizations[i].length());
-        }
-
-        // Padding
-        for (int i = 0; i < qis.size(); i++) {
-            while (identifiers[i].length() < lengthI) {
-                identifiers[i].append(" ");
-            }
-            while (generalizations[i].length() < lengthG) {
-                generalizations[i].insert(0, " ");
-            }
-        }
-
-        // Print
-        System.out.println(" - Information loss: " + result.getGlobalOptimum().getLowestScore() + " / " + result.getGlobalOptimum().getHighestScore());
-        System.out.println(" - Optimal generalization");
-        for (int i = 0; i < qis.size(); i++) {
-            System.out.println("   * " + identifiers[i] + ": " + generalizations[i]);
-        }
-        System.out.println(" - Statistics");
-        System.out.println(result.getOutput(result.getGlobalOptimum(), false).getStatistics().getEquivalenceClassStatistics());
-    }
     
-    public static void main(String[] args) {
+    static void testArx() {
         DefaultData data = Data.create();
         data.add("age", "gender", "zipcode");
         data.add("34", "male", "81667");
@@ -119,12 +75,39 @@ public class ARXTest {
 
         // Print info
         printResult(result, data);
-            
+
         System.out.println(" - Transformed data:");
         Iterator<String[]> transformed = result.getOutput(false).iterator();
         while (transformed.hasNext()) {
             System.out.print("   ");
             System.out.println(Arrays.toString(transformed.next()));
+        }
+    }
+
+    static void testKAnonymity() {
+        List<Record> dataset = Arrays.asList(
+                new Record("31-35", "8166*", "Flu"),
+                new Record("31-35", "8166*", "Cold"),
+                new Record("36-40", "8166*", "Cancer"),
+                new Record("36-40", "8166*", "Flu"),
+                new Record("36-40", "8166*", "Cold"),
+                new Record("36-40", "8166*", "Cancer")
+        );
+
+        int k = 2;
+        boolean result = isKAnonymous(dataset, k);
+        System.out.println("Dataset is " + k + "-anonymous: " + result);
+    }
+    
+    public static void main(String[] args) {
+        
+        //testArx();
+        testKAnonymity();
+        try {
+            loadDataset();
+        } catch (IOException ex) {
+            System.err.println(ex.getMessage());
+            Logger.getLogger(ARXTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
