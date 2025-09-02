@@ -5,7 +5,9 @@
 package pl.polsl.sikorski.falfus.WarehouseSecurity;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -16,8 +18,10 @@ import org.deidentifier.arx.ARXResult;
 import org.deidentifier.arx.AttributeType;
 import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.Data;
+import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.DataSource;
 import org.deidentifier.arx.DataType;
+import org.deidentifier.arx.criteria.DistinctLDiversity;
 import org.deidentifier.arx.criteria.KAnonymity;
 
 /**
@@ -25,11 +29,12 @@ import org.deidentifier.arx.criteria.KAnonymity;
  * @author sikor
  */
 public class KAnonymityTesting {
-    
+
     static Data data;
-    
+
     // Sample record class
     static class Record {
+
         String age;
         String zipCode;
         String disease;
@@ -45,7 +50,7 @@ public class KAnonymityTesting {
             return age + "|" + zipCode;
         }
     }
-    
+
     // Method to check k-anonymity
     public static boolean isKAnonymous(List<Record> records, int k) {
         Map<String, Integer> qiCounts = new HashMap<>();
@@ -64,7 +69,7 @@ public class KAnonymityTesting {
         }
         return true;
     }
-    
+
     public static void loadDataset() throws IOException {
         File path = new File("src/main/resources/healthcare_dataset.csv");
         DataSource source = DataSource.createCSVSource(path, StandardCharsets.UTF_8, ',', true);
@@ -85,15 +90,13 @@ public class KAnonymityTesting {
         data.getDefinition().setAttributeType("Room Number", Hierarchy.create(path, StandardCharsets.UTF_8, ','));
         path = new File("src/main/resources/gender_hierarchy.csv");
         data.getDefinition().setAttributeType("Gender", Hierarchy.create(path, StandardCharsets.UTF_8, ','));
-        
+
         data.getDefinition().setAttributeType("Blood Type", AttributeType.INSENSITIVE_ATTRIBUTE);
         data.getDefinition().setAttributeType("Doctor", AttributeType.INSENSITIVE_ATTRIBUTE);
-        
+
         //TODO: anonymize billing and remove firstname from doctor. Also do something with blood type
-        
         //data.removeColumn();
-        
-        ARXAnonymizer anonymizer = new ARXAnonymizer();
+        /*ARXAnonymizer anonymizer = new ARXAnonymizer();
         
         ARXConfiguration config = ARXConfiguration.create();
         config.addPrivacyModel(new KAnonymity(2));
@@ -104,9 +107,38 @@ public class KAnonymityTesting {
         
         System.out.print(" - Writing data...");
         result.getOutput(false).save("src/main/resources/test_anonymized.csv", ',');
-        System.out.println("Done!");
+        System.out.println("Done!");*/
     }
-    
+
+    public static DataHandle anonymizeByChoice(int choice, boolean useLDiv) throws IOException {
+        loadDataset();
+        
+        ARXConfiguration config = ARXConfiguration.create();
+        ARXAnonymizer anonymizer = new ARXAnonymizer();
+
+        switch (choice) {
+            case 1:  // No anonymization
+                return null;
+            case 5:  // Full data unchanged
+                return data.getHandle();
+            case 2:  // Extended privacy protection (k + optional l-div)
+            case 3:  // Basic privacy protection (k only)
+            case 4:  // Important data left unchanged (treat as similar to k only)
+                config.addPrivacyModel(new KAnonymity(2));
+                if (useLDiv) {
+                    // Define sensitive attribute (e.g., "Discharge Date")
+                    data.getDefinition().setAttributeType("Discharge Date", AttributeType.SENSITIVE_ATTRIBUTE);
+                    config.addPrivacyModel(new DistinctLDiversity("Discharge Date", 2));
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown choice: " + choice);
+        }
+        config.setSuppressionLimit(0.5d);
+        ARXResult result = anonymizer.anonymize(data, config);
+        return result.getOutput(false);
+    }
+
     static void printResult(final ARXResult result, final Data data) {
 
         // Print time

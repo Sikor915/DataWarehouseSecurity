@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import org.deidentifier.arx.DataHandle;
+import static pl.polsl.sikorski.falfus.WarehouseSecurity.KAnonymityTesting.anonymizeByChoice;
 
 /**
  *
@@ -46,18 +48,37 @@ public class process extends HttpServlet {
             out.println("</html>");
         }
     }
-    
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-         throws ServletException, IOException {
+            throws ServletException, IOException {
+        System.out.println(req);
         String choice = req.getParameter("choice");
+        String lDiv = req.getParameter("useLDiv");
+        boolean isLDivOn = (lDiv != null);
         // Generate or locate file based on choice
-        resp.setContentType("text/plain");
-        resp.setHeader("Content-Disposition", "attachment; filename=\"result.txt\"");
-        try (OutputStream out = resp.getOutputStream()) {
-            String content = "You selected: " + choice;
-            out.write(content.getBytes(StandardCharsets.UTF_8));
+        DataHandle output = anonymizeByChoice(Integer.parseInt(choice), isLDivOn);
+        if (output != null) {
+            resp.setContentType("text/csv");
+            resp.setHeader("Content-Disposition", "attachment; filename=\"anonymized.csv\"");
+            output.save(resp.getOutputStream(), ',');
+        } else {
+            resp.setContentType("text/plain");
+            resp.setHeader("Content-Disposition", "attachment; filename=\"result.txt\"");
+            try (OutputStream out = resp.getOutputStream()) {
+                StringBuilder sb = new StringBuilder();
+                String content = "You selected: " + choice + "\n";
+                sb.append(content).append("Use l diversity? ").append(isLDivOn).append("\nNo data for you");
+                out.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+            }
         }
+
+        /*try (OutputStream out = resp.getOutputStream()) {
+            StringBuilder sb = new StringBuilder();
+            String content = "You selected: " + choice + "\n";
+            sb.append(content).append("Use l diversity? ").append(isLDivOn);
+            out.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+        }*/
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

@@ -14,7 +14,7 @@ import org.deidentifier.arx.criteria.KAnonymity;
 
 import pl.polsl.sikorski.falfus.WarehouseSecurity.KAnonymityTesting.Record;
 import static pl.polsl.sikorski.falfus.WarehouseSecurity.KAnonymityTesting.isKAnonymous;
-import static pl.polsl.sikorski.falfus.WarehouseSecurity.KAnonymityTesting.loadDataset;
+//import static pl.polsl.sikorski.falfus.WarehouseSecurity.KAnonymityTesting.loadDataset;
 import static pl.polsl.sikorski.falfus.WarehouseSecurity.KAnonymityTesting.printResult;
 
 /**
@@ -82,7 +82,7 @@ public class ARXTest {
     }
 
     static void testKAnonymity() {
-        List<Record> dataset = Arrays.asList(
+        /*List<Record> dataset = Arrays.asList(
                 new Record("31-35", "8166*", "Flu"),
                 new Record("31-35", "8166*", "Cold"),
                 new Record("36-40", "8166*", "Cancer"),
@@ -94,17 +94,17 @@ public class ARXTest {
         int k = 2;
         boolean result = isKAnonymous(dataset, k);
         System.out.println("Dataset is " + k + "-anonymous: " + result);
-    }
+    */}
     
     public static void main(String[] args) {
         
         //testArx();
-        testKAnonymity();
+        /*testKAnonymity();
         try {
             loadDataset();
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
             Logger.getLogger(ARXTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }*/
     }
 }

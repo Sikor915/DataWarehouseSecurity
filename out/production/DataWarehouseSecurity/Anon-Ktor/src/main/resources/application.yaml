@@ -1,0 +1,12 @@
+ktor:
+  application:
+    modules:
+      - pl.polsl.sikorfalf.ApplicationKt.module
+  deployment:
+    port: 8080
+jwt:
+  secret: "secret"
+  issuer: "http://0.0.0.0:8080/"
+  audience: "http://0.0.0.0:8080/"
+  realm: "Access protected routes"
+  expiry: "1800" #Expiration 1800s=30min
