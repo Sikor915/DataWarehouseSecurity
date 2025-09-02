@@ -29,7 +29,8 @@ fun Application.module() {
     data class User(val username: String, val password: String)
 
     configureSerialization()
-    configureAuthentication()
-    configureAuthentication()
+    configureRouting()
+    //configureAuthentication()
+    //configureAuthentication()
 }
 
