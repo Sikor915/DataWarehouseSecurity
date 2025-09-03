@@ -19,3 +19,10 @@ data class LoginRequest(
 @Serializable
 data class AuthResponse(val token: String)
 
+@Serializable
+data class MeResponse(
+    val firstName: String,
+    val lastName: String,
+    val trustLevel: Int
+)
+

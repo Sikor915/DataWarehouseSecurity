@@ -19,6 +19,7 @@ fun Application.module() {
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Options)
+        allowHeader(HttpHeaders.Authorization)
     }
 
     val jwtConfig = environment.config.config("ktor.jwt").let {

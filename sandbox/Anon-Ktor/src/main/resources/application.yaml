@@ -9,4 +9,4 @@ ktor:
     issuer: "http://0.0.0.0:8080/"
     audience: "http://0.0.0.0:8080/"
     realm: "Access protected routes"
-    expiry: "1800" #Expiration 1800s=30min
+    expiry: "1800000" #Expiration 1800s=30min

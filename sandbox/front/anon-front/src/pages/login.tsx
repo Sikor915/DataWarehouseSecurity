@@ -29,8 +29,11 @@ const Login: React.FC = () => {
       }
 
       const data = await response.json();
+
+      // zapis tokena JWT w localStorage
       localStorage.setItem("token", data.token);
 
+      // przekierowanie do panelu użytkownika
       navigate("/dashboard");
     } catch (error) {
       console.error("Błąd logowania:", error);

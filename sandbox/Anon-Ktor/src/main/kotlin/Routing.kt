@@ -3,6 +3,9 @@ package pl.polsl.sikorfalf
 import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -68,5 +71,35 @@ fun Application.configureRouting(config: JWTConfig) {
 
             call.respond(HttpStatusCode.OK, AuthResponse(token))
         }
+
+        authenticate("jwt-auth") {
+            get("/me") {
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal?.payload?.getClaim("userId")?.asInt()
+
+                if (userId == null) {
+                    call.respond(HttpStatusCode.Unauthorized, "Niepoprawny token")
+                    return@get
+                }
+
+                val user = transaction {
+                    Users.select { Users.id eq userId }.singleOrNull()
+                }
+
+                if (user == null) {
+                    call.respond(HttpStatusCode.NotFound, "Użytkownik nie istnieje")
+                    return@get
+                }
+
+                call.respond(
+                    MeResponse(
+                        firstName = user[Users.firstName],
+                        lastName = user[Users.lastName],
+                        trustLevel = user[Users.trustLevel]
+                    )
+                )
+            }
+        }
+
     }
 }
