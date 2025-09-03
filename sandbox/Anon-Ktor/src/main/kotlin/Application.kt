@@ -1,36 +1,25 @@
 package pl.polsl.sikorfalf
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-//import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.*
-import io.ktor.server.auth.Authentication
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.jwt.jwt
-import io.ktor.server.auth.principal
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
-import kotlinx.serialization.Serializable
-import java.util.Date
+
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
 
 fun Application.module() {
-
-    @Serializable
-    data class User(val username: String, val password: String)
-
+    initDatabase()
+    val jwtConfig = environment.config.config("ktor.jwt").let {
+        JWTConfig(
+            realm = it.property("realm").getString(),
+            secret = it.property("secret").getString(),
+            issuer = it.property("issuer").getString(),
+            audience = it.property("audience").getString(),
+            tokenExpiration = it.property("expiry").getString().toLong()
+        )
+    }
     configureSerialization()
-    configureRouting()
-    //configureAuthentication()
-    //configureAuthentication()
+    configureAuthentication(config = jwtConfig)
+    configureRouting(jwtConfig)
 }
 

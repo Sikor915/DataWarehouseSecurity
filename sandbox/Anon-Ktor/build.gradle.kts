@@ -42,4 +42,13 @@ dependencies {
     implementation("io.ktor:ktor-server-config-yaml")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    //Database
+    implementation("org.jetbrains.exposed:exposed-core:0.53.0")
+    implementation("org.jetbrains.exposed:exposed-dao:0.53.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.53.0")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.53.0")
+    //Password encrypt
+    implementation("org.mindrot:jbcrypt:0.4")
+    //Postgres dependency
+    implementation("org.postgresql:postgresql:42.7.3")
 }

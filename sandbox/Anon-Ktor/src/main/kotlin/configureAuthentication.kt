@@ -35,9 +35,9 @@ fun Application.configureAuthentication(config: JWTConfig) {
             verifier(jwtVerifier)
 
             validate { credential ->
-                val username = credential.payload.getClaim("username").asString()
-                val role = credential.payload.getClaim("role").asString()
-                if(!username.isNullOrEmpty() && !role.isNullOrEmpty()) {
+                val userId = credential.payload.getClaim("userId").asInt()
+                val trustLevel = credential.payload.getClaim("trustLevel").asInt()
+                if (userId != null && trustLevel != null) {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
@@ -45,6 +45,7 @@ fun Application.configureAuthentication(config: JWTConfig) {
             }
             challenge { _, _ -> call.respond(HttpStatusCode.Unauthorized) }
         }
+
         /**
          * Admin space auth.
          */
@@ -60,9 +61,10 @@ fun Application.configureAuthentication(config: JWTConfig) {
             verifier(jwtVerifier)
 
             validate { credential ->
-                val username = credential.payload.getClaim("username").asString()
-                val role = credential.payload.getClaim("role").asString()
-                if(!username.isNullOrEmpty() && !role.isNullOrEmpty() && role == "admin") {
+                val userId = credential.payload.getClaim("userId").asInt()
+                val trustLevel = credential.payload.getClaim("trustLevel").asInt()
+                // traktujemy trustLevel >= 2 jako admin (przykład)
+                if (userId != null && trustLevel != null && trustLevel >= 2) {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
@@ -76,12 +78,12 @@ fun Application.configureAuthentication(config: JWTConfig) {
 /**
  * JWT token generation
  */
-fun generateToken(config: JWTConfig, username: String, role: String): String {
+fun generateToken(config: JWTConfig, userId: Int, trustLevel: Int): String {
     return JWT.create()
         .withAudience(config.audience)
         .withIssuer(config.issuer)
-        .withClaim("username",username)
-        .withClaim("role",role)
+        .withClaim("userId", userId)
+        .withClaim("trustLevel", trustLevel)
         .withExpiresAt(Date(System.currentTimeMillis() + config.tokenExpiration))
         .sign(Algorithm.HMAC256(config.secret))
 }

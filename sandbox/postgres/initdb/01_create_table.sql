@@ -6,11 +6,11 @@ CREATE TABLE IF NOT EXISTS files (
     uploaded_at TIMESTAMP DEFAULT NOW()
 );
 
--- Tabela użytkowników
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
+password_hash TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     trust_level INT DEFAULT 1
 );
