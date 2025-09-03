@@ -3,23 +3,38 @@ import { useNavigate, Link } from "react-router-dom";
 import "./login.css";
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const user = users.find(
-      (u: any) => u.username === username && u.password === password
-    );
+    try {
+      const response = await fetch("http://localhost:8080/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (user) {
-      localStorage.setItem("token", "fake-jwt-token");
+      if (!response.ok) {
+        if (response.status === 401) {
+          alert("Błędny email lub hasło");
+        } else {
+          alert("Błąd serwera");
+        }
+        return;
+      }
+
+      const data = await response.json();
+      localStorage.setItem("token", data.token);
+
       navigate("/dashboard");
-    } else {
-      alert("Błędny login lub hasło");
+    } catch (error) {
+      console.error("Błąd logowania:", error);
+      alert("Nie udało się połączyć z serwerem");
     }
   };
 
@@ -28,11 +43,11 @@ const Login: React.FC = () => {
       <h2>Login</h2>
       <form onSubmit={handleSubmit} className="login-form">
         <label>
-          Login:
+          Email:
           <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </label>
@@ -48,12 +63,12 @@ const Login: React.FC = () => {
         <button type="submit">Submit</button>
       </form>
 
-        <p className="register-text">
+      <p className="register-text">
         Don't have an account?{" "}
         <Link to="/register" className="register-link">
-            Click here
+          Click here
         </Link>
-        </p>
+      </p>
     </div>
   );
 };

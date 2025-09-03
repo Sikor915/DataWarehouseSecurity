@@ -1,6 +1,9 @@
 package pl.polsl.sikorfalf
 
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.server.application.*
+import io.ktor.server.plugins.cors.routing.CORS
 
 
 fun main(args: Array<String>) {
@@ -9,6 +12,15 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     initDatabase()
+
+    install(CORS) {
+        anyHost() // do testów lokalnych. W produkcji lepiej wpisz konkretny origin np. "http://localhost:3000"
+        allowHeader(HttpHeaders.ContentType)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Options)
+    }
+
     val jwtConfig = environment.config.config("ktor.jwt").let {
         JWTConfig(
             realm = it.property("realm").getString(),

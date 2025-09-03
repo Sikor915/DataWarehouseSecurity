@@ -45,7 +45,7 @@ fun Application.configureRouting(config: JWTConfig) {
             // Generowanie tokena JWT
             val token = generateToken(config, userId, 1)
 
-            call.respond(AuthResponse(token))
+            call.respond(HttpStatusCode.Created, mapOf("message" to "Rejestracja udana. Możesz się teraz zalogować."))
         }
 
         post("/login") {
@@ -65,6 +65,8 @@ fun Application.configureRouting(config: JWTConfig) {
             val trustLevel = user[Users.trustLevel]
 
             val token = generateToken(config, userId.value, trustLevel)
+
+            call.respond(HttpStatusCode.OK, AuthResponse(token))
         }
     }
 }

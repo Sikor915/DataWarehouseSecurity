@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./login.css"; // korzystamy z tego samego CSS co Login
+import "./login.css";
 
 const Register: React.FC = () => {
-  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -17,21 +18,34 @@ const Register: React.FC = () => {
       return;
     }
 
-    // pobieramy istniejących użytkowników z localStorage
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    try {
+      const response = await fetch("http://localhost:8080/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          password,
+        }),
+      });
 
-    // sprawdzamy, czy login już istnieje
-    if (users.find((u: any) => u.username === username)) {
-      alert("Użytkownik o takim loginie już istnieje");
-      return;
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(data.message || "Rejestracja udana. Możesz się teraz zalogować.");
+        navigate("/login");
+      } else if (response.status === 409) {
+        alert(data.message || "Użytkownik o tym emailu już istnieje.");
+      } else {
+        alert("Błąd serwera. Spróbuj ponownie.");
+      }
+    } catch (error) {
+      console.error("Błąd rejestracji:", error);
+      alert("Nie udało się połączyć z serwerem");
     }
-
-    // zapisujemy nowego użytkownika
-    users.push({ username, email, password });
-    localStorage.setItem("users", JSON.stringify(users));
-
-    alert("Rejestracja zakończona sukcesem! Możesz się zalogować.");
-    navigate("/login");
   };
 
   return (
@@ -39,11 +53,20 @@ const Register: React.FC = () => {
       <h2>Register</h2>
       <form onSubmit={handleSubmit} className="login-form">
         <label>
-          Login:
+          First Name:
           <input
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          Last Name:
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
             required
           />
         </label>

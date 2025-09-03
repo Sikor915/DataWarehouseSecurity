@@ -51,4 +51,6 @@ dependencies {
     implementation("org.mindrot:jbcrypt:0.4")
     //Postgres dependency
     implementation("org.postgresql:postgresql:42.7.3")
+    //CORS for frontend
+    implementation("io.ktor:ktor-server-cors-jvm:2.3.5")
 }
