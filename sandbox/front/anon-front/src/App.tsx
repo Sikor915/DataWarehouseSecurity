@@ -20,7 +20,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         {/* chronione */}
         <Route element={<PrivateRoute />}>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
         </Route>

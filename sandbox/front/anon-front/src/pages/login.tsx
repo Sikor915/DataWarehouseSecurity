@@ -34,7 +34,7 @@ const Login: React.FC = () => {
       localStorage.setItem("token", data.token);
 
       // przekierowanie do panelu użytkownika
-      navigate("/dashboard");
+      navigate("/home");
     } catch (error) {
       console.error("Błąd logowania:", error);
       alert("Nie udało się połączyć z serwerem");

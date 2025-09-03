@@ -65,27 +65,30 @@ const Home: React.FC = () => {
           <div className="card">
             <h2>About Project</h2>
             <p>
-              This project aims to automate data sharing for epilepsy patients
-              using anonymization algorithms, ensuring privacy and safe data usage.
+              The project aims to create a secure platform for automated data sharing, focused on protecting privacy 
+              while enabling authorized access to valuable datasets. It leverages advanced anonymization techniques,
+              including the ARX library, to ensure that sensitive medical information or otherwise cannot be traced 
+              back to individuals. Users with different trust levels can access data according to their authorization, 
+              making the system safe, flexible, and suitable for a wide range of applications.
             </p>
           </div>
 
           <div className="card">
             <h2>Features</h2>
             <ul>
-              <li>User registration and login</li>
-              <li>Password hashing with BCrypt</li>
-              <li>JWT-based authentication</li>
-              <li>Frontend integration with React</li>
-              <li>Data anonymization and controlled access</li>
+              <li>Access to anonymized data depending on your trust level</li>
+              <li>Automatic anonymization of sensitive information</li>
+              <li>Controlled sharing of patient data based on trust and permissions</li>
+              <li>Automatic anonymization of sensitive information using the ARX library especially based statistic anonymization</li>
             </ul>
           </div>
 
           <div className="card">
             <h2>Next Steps</h2>
             <p>
-              Extend the project by adding email verification, role-based access,
-              and refreshing JWT tokens to enhance security and UX.
+              <li>Integrate real-time notifications for data updates</li>
+              <li>Enhance data anonymization policies with configurable settings</li>
+              <li>Develop user-friendly dashboards for visualizing anonymized data</li>
             </p>
           </div>
         </div>
