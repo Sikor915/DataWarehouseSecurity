@@ -1,0 +1,115 @@
+attributes:
+  Name:
+    type: direct_identifier
+  Age:
+    type: quasi_identifier
+  Gender:
+    type: quasi_identifier
+  Blood Type:
+    type: quasi_identifier
+  Date of Admission:
+    type: quasi_identifier
+  Discharge Date:
+    type: quasi_identifier
+  Doctor:
+    type: quasi_identifier
+    transformation: pseudonym_stable
+  Hospital:
+    type: quasi_identifier
+  Insurance Provider:
+    type: quasi_identifier
+  Room Number:
+    type: quasi_identifier
+  Admission Type:
+    type: quasi_identifier
+  Medical Condition:
+    type: sensitive
+  Billing Amount:
+    type: sensitive
+  Test Results:
+    type: insensitive
+  Medication:
+    type: insensitive
+
+
+
+anonymization_policy:
+  trust_levels:
+    1:
+      k: 20
+      l: 1
+      suppression: 0.30
+      generalization:
+        Age: "10y"
+        Gender: "*"
+        Blood Type: "*"
+        Date of Admission: "year"
+        Discharge Date: "year"
+        Doctor: "pseudonym_stable"
+        Hospital: "region"
+        Insurance Provider: "type"
+        Billing Amount: "broad"
+        Room Number: "remove"
+        Admission Type: "grouped"
+    2:
+      k: 10
+      l: 4
+      suppression: 0.10
+      generalization:
+        Age: "5y"
+        Gender: "*"
+        Blood Type: "ABO"
+        Date of Admission: "year-month"
+        Discharge Date: "year-month"
+        Doctor: "pseudonym_stable"
+        Hospital: "city"
+        Insurance Provider: "category"
+        Billing Amount: "5k"
+        Room Number: "floor"
+        Admission Type: "grouped"
+    3:
+      k: 5
+      l: 3
+      suppression: 0.10
+      generalization:
+        Age: "5y"
+        Gender: "exact"
+        Blood Type: "ABO"
+        Date of Admission: "year-month"
+        Discharge Date: "year-month"
+        Doctor: "pseudonym_stable"
+        Hospital: "city"
+        Insurance Provider: "category"
+        Billing Amount: "1k"
+        Room Number: "floor"
+        Admission Type: "exact"
+    4:
+      k: 3
+      l: 2
+      suppression: 0.10
+      generalization:
+        Age: "2y"
+        Gender: "exact"
+        Blood Type: "exact"
+        Date of Admission: "month"
+        Discharge Date: "month"
+        Doctor: "pseudonym_stable"
+        Hospital: "city"
+        Insurance Provider: "exact"
+        Billing Amount: "500"
+        Room Number: "floor"
+        Admission Type: "exact"
+    5:
+      k: 2
+      l: 1
+      suppression: 0.20
+      generalization:
+        Age: "2y"
+        Gender: "exact"
+        Blood Type: "exact"
+        Date of Admission: "exact"
+        Discharge Date: "exact"
+        Doctor: "pseudonym_stable"
+        Billing Amount: "100"
+        Room Number: "floor"
+        Admission Type: "exact"
