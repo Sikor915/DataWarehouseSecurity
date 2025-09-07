@@ -16,6 +16,8 @@ import pl.polsl.sikorfalf.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
+import java.io.File
+import java.nio.file.Paths
 
 fun Application.configureRouting(config: JWTConfig) {
     routing {
@@ -138,17 +140,31 @@ fun Application.configureRouting(config: JWTConfig) {
                 }
 
                 // only fetch the file if user passes trust check
-                val csvBytes = transaction {
+                val file = transaction {
                     Files.select { Files.fileName eq name }
-                        .map { it[Files.filedata].bytes }
-                        .singleOrNull() as? ByteArray
+                        .singleOrNull()
                 } ?: return@get call.respondText(
                     "File not found",
                     status = HttpStatusCode.NotFound
                 )
 
+                val yamlData = file[Files.anonymRules].bytes
+                val csvData = file[Files.filedata].bytes
+
+                File("sandbox/csv/data_policy.yaml").apply {
+                    parentFile?.mkdirs()
+                    writeBytes(yamlData)
+                }
+
+                File("sandbox/csv/healthcare_dataset.csv").apply {
+                    parentFile?.mkdirs()
+                    writeBytes(csvData)
+                }
+
+                val anonymized = main(userTrust)
+
                 call.respondBytes(
-                    csvBytes,
+                    anonymized,
                     contentType = ContentType.Text.CSV,
                     status = HttpStatusCode.OK
                 )
