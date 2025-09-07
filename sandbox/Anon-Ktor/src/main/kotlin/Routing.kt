@@ -72,6 +72,16 @@ fun Application.configureRouting(config: JWTConfig) {
             call.respond(HttpStatusCode.OK, AuthResponse(token))
         }
 
+        get("/datasets/names") {
+            /*val datasets: List<String> = transaction {
+                Files.select(Files.fileName).map{
+                    it[Files.fileName]
+                }
+            }
+            call.respond(datasets)*/
+            call.respond("")
+        }
+
         authenticate("jwt-auth") {
             get("/me") {
                 val principal = call.principal<JWTPrincipal>()
