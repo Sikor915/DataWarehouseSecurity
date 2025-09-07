@@ -1,5 +1,6 @@
 package pl.polsl.sikorfalf
 
+import kotlinx.coroutines.flow.asFlow
 import org.apache.hadoop.util.GenericsUtil.getClass
 import org.deidentifier.arx.ARXConfiguration
 import org.deidentifier.arx.ARXAnonymizer
@@ -12,39 +13,70 @@ import org.deidentifier.arx.criteria.LDiversity
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.nio.charset.StandardCharsets
+import kotlin.String
+
+fun stablePseudo(original: String): String {
+    val digest = java.security.MessageDigest.getInstance("SHA-256")
+    val hash = digest.digest(original.toByteArray())
+    return hash.take(4).joinToString("") { "%02x".format(it) }
+}
+
+fun initialHash(attributes: Map<String, Map<String, String>>, inputDatasetPath: String) {
+    val csv = File("../csv/healthcare_dataset.csv")
+    val csvOutput = File("../csv/dataset_hashed.csv")
+    val handleCSV = csv.readLines()
+
+    val attributesToHash = attributes.filter { it.value["type"] == "randomize_identifier" }.keys
+    val header = handleCSV.first().split(",")
+    csvOutput.printWriter().use { out ->
+        out.println(header.joinToString(","))
+        for (line in handleCSV.drop(1)) {
+            val values = line.split(",")
+            val row = header.mapIndexed { index, attr ->
+                val value = values.getOrElse(index) { "" }
+                if (attr in attributesToHash) stablePseudo(value) else value
+            }
+            out.println(row.joinToString(","))
+        }
+    }
+}
 
 fun main() {
-
+    //Loading config from yaml file
     val yamlFile = File("../csv/data_policy.yaml")
     val yaml = Yaml()
     val configMap: Map<String, Any> = yaml.load(yamlFile.inputStream())
-    val csv = File("../csv/healthcare_dataset.csv")
+    val attributes = configMap["attributes"] as Map<String, Map<String, String>>
 
+    //Hashing doctor, patient names
+    initialHash(attributes, "../csv/healthcare_dataset.csv")
+
+    //Use hashed csv file :)
+    val csv = File("../csv/dataset_hashed.csv")
     val data = Data.create(csv, StandardCharsets.UTF_8, ',')
 
-
-    val attributes = configMap["attributes"] as Map<String, Map<String, String>>
+    //Set type of attr based yaml
     for ((attr, props) in attributes) {
         when (props["type"]) {
             "direct_identifier" -> data.definition.setAttributeType(attr, AttributeType.IDENTIFYING_ATTRIBUTE)
             "quasi_identifier" -> data.definition.setAttributeType(attr, AttributeType.QUASI_IDENTIFYING_ATTRIBUTE)
             "sensitive" -> data.definition.setAttributeType(attr, AttributeType.SENSITIVE_ATTRIBUTE)
             "insensitive" -> data.definition.setAttributeType(attr, AttributeType.INSENSITIVE_ATTRIBUTE)
+            "randomize_identifier" -> data.definition.setAttributeType(attr, AttributeType.INSENSITIVE_ATTRIBUTE)
         }
     }
 
-
+    //Get yaml config for specific trust lvl :)
     val anonymPolicyAny = (configMap["anonymization_policy"] as Map<*, *>)["trust_levels"]
     val anonymPolicy = anonymPolicyAny as Map<Int, Map<String, Any>>
 
-    val trustLevel = 4
+    val trustLevel = 2
     val levelConfig = anonymPolicy[trustLevel] ?: throw IllegalStateException("Nie znaleziono konfiguracji dla trustLevel=$trustLevel")
 
+    //Cofiguration k-anon and l-div
     val config = ARXConfiguration.create()
-
         val k = levelConfig["k"] as Int
         config.addPrivacyModel(KAnonymity(k))
-
 
         val l = levelConfig["l"] as Int
         attributes.forEach { (attr, props) ->
@@ -53,103 +85,127 @@ fun main() {
             }
         }
 
+    //Max % of records that can be deleted to
     config.setSuppressionLimit(levelConfig["suppression"] as Double)
+
 
     val generalizations = levelConfig["generalization"] as Map<String, String>
     val handle : DataHandle = data.handle
 
     for ((attr, gen) in generalizations) {
-        val attrProps = attributes[attr] ?: continue
-        val rowCount = handle.numRows
         val colIndex = handle.getColumnIndexOf(attr)
+        val hierarchy = AttributeType.Hierarchy.create()
+        val uniqueValues = mutableSetOf<String>()
+        for (i in 0 until handle.numRows) uniqueValues.add(handle.getValue(i, colIndex))
 
-        when (attrProps["transformation"]) {
-            "pseudonym_stable" -> {
-                println("Pseudonimizacja stabilna dla $attr")
-
-                val uniqueValues = mutableSetOf<String>()
-                val colIndex = handle.getColumnIndexOf(attr)
-                for (i in 0 until handle.numRows) {
-                    uniqueValues.add(handle.getValue(i, colIndex))
+        when (gen) {
+            "floor" -> { // Room Number
+                for (v in uniqueValues.map { it.toInt() }) {
+                    val floor = v / 100
+                    hierarchy.add(v.toString(), "Floor $floor", "*")
                 }
-
-
-                val pseudoMap = mutableMapOf<String, String>()
-                fun randomString(length: Int): String {
-                    val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-                    return (1..length).map { chars.random() }.joinToString("")
-                }
-                for (v in uniqueValues) pseudoMap[v] = randomString(8)
-
-
-                val hierarchy = AttributeType.Hierarchy.create()
-                for ((original, pseudo) in pseudoMap) {
-                    hierarchy.add(original, pseudo, "*")
-                }
-
-
-                data.definition.setHierarchy(attr, hierarchy)
             }
 
-            "Age" -> {
-                val hierarchy = AttributeType.Hierarchy.create()
+            "ABO" -> {
+                for (v in uniqueValues) {
+                    val group = when {
+                        v.startsWith("A") && !v.startsWith("AB") -> "A"
+                        v.startsWith("B") && !v.startsWith("AB") -> "B"
+                        v.startsWith("AB") -> "AB"
+                        else -> "O"
+                    }
+                    hierarchy.add(v, group)
+                }
+            }
+
+            "remove", "*" -> {
+                uniqueValues.forEach { hierarchy.add(it,"*", "*") }
+            }
+
+            "exact" -> {
+                uniqueValues.forEach { hierarchy.add(it, it) }
+            }
+
+            "5y", "10y", "15y", "20y" -> {
                 val step = when (gen) {
-                    "±1y" -> 1
-                    "2y" -> 2
                     "5y" -> 5
                     "10y" -> 10
-                    else -> 1
+                    "15y" -> 15
+                    "20y" -> 20
+                    else -> 20
                 }
-                for (start in 0..120 step step) {
+                for (v in uniqueValues.map { it.toInt() }) {
+                    val start = (v / step) * step
                     val end = start + step - 1
-                    hierarchy.add(start.toString(), "$start-$end", "*")
+                    hierarchy.add(v.toString(), "$start-$end")
                 }
-                data.definition.setHierarchy(attr, hierarchy)
             }
 
-            "Room Number" -> {
-                val hierarchy = AttributeType.Hierarchy.create()
-                when (gen) {
-                    "floor" -> for (room in 0..500) {
-                        val floor = room / 100
-                        hierarchy.add(room.toString(), "Floor $floor", "*")
-                    }
-                    "remove" -> for (room in 0..500) hierarchy.add(room.toString(), "*")
-                    else -> for (room in 0..500) hierarchy.add(room.toString(), room.toString(), "*")
+            "10000", "20000", "30000", "40000" -> {
+                val step = when (gen) {
+                    "10000" -> 10000.0
+                    "20000" -> 20000.0
+                    "30000" -> 30000.0
+                    "40000" -> 40000.0
+                    else -> 50000.0
                 }
-                data.definition.setHierarchy(attr, hierarchy)
+                for (v in uniqueValues.mapNotNull { it.toDoubleOrNull() }) {
+                    val start = (v / step).toInt() * step
+                    val end = start + step - 1
+                    hierarchy.add(v.toString(), "${start.toInt()}-${end.toInt()}")
+                }
             }
 
-            "Blood Type" -> {
-                val hierarchy = AttributeType.Hierarchy.create()
-                val allTypes = listOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
-                when (gen) {
-                    "*" -> allTypes.forEach { hierarchy.add(it, "*") }
-                    "ABO" -> allTypes.forEach {
-                        val group = when {
-                            it.startsWith("A") && !it.startsWith("AB") -> "A"
-                            it.startsWith("B") -> "B"
-                            it.startsWith("AB") -> "AB"
-                            else -> "O"
-                        }
-                        hierarchy.add(it, group, "*")
+            "v" -> {
+                for (v in uniqueValues) {
+                    val group = when {
+                        v.startsWith("A") && !v.startsWith("AB") -> "A"
+                        v.startsWith("B") -> "B"
+                        v.startsWith("AB") -> "AB"
+                        else -> "O"
                     }
-                    else -> allTypes.forEach { hierarchy.add(it, it, "*") }
+                    hierarchy.add(v, group)
                 }
-                data.definition.setHierarchy(attr, hierarchy)
+            }
+
+            "year" -> {
+                for (v in uniqueValues) {
+                    val year = v.take(4) // YYYY
+                    hierarchy.add(v, year)
+                }
+            }
+
+            "year-month" -> {
+                for (v in uniqueValues) {
+                    val ym = v.take(7) // YYYY-MM
+                    hierarchy.add(v, ym)
+                }
+            }
+
+            "month" -> {
+                for (v in uniqueValues) {
+                    val parts = v.split("-")
+                    if (parts.size >= 2) {
+                        val ym = "${parts[0]}-${parts[1]}" // YYYY-MM
+                        hierarchy.add(v, ym)
+                    } else {
+                        hierarchy.add(v, v, "*")
+                    }
+                }
+            }
+
+            "grouped" -> {
+                uniqueValues.forEach { hierarchy.add(it, it, "*") }
             }
 
             else -> {
-
-                val uniqueValues = mutableSetOf<String>()
-                for (i in 0 until rowCount) uniqueValues.add(handle.getValue(i, colIndex))
-                val hierarchy = AttributeType.Hierarchy.create()
-                for (v in uniqueValues) hierarchy.add(v, "*")
-                data.definition.setHierarchy(attr, hierarchy)
+                uniqueValues.forEach { hierarchy.add(it, it, "*") }
             }
         }
-    }
 
+        data.definition.setHierarchy(attr, hierarchy)
+
+    }
 
     val anonymizer = ARXAnonymizer()
     val result = anonymizer.anonymize(data, config)
