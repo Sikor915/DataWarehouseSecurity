@@ -1,6 +1,7 @@
 package pl.polsl.sikorfalf
 
 import com.auth0.jwt.JWT
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.auth.authenticate
@@ -80,6 +81,16 @@ fun Application.configureRouting(config: JWTConfig) {
                     .map { it[Files.fileName] }
             }
             call.respond(mapOf("tables" to datasets))
+        }
+
+        get("/datasets/download") {
+            val name = call.parameters["name"] ?: return@get call.respondText("Missing name", status = HttpStatusCode.BadRequest)
+            val csvBytes = transaction {
+                Files.select { Files.fileName eq name }
+                    .map { it[Files.filedata].bytes }
+                    .singleOrNull() as ByteArray
+            }
+            call.respondBytes(csvBytes, contentType = ContentType.Text.CSV, status = HttpStatusCode.OK)
         }
 
         authenticate("jwt-auth") {
