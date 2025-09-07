@@ -22,8 +22,8 @@ fun stablePseudo(original: String): String {
 }
 
 fun initialHash(attributes: Map<String, Map<String, String>>, inputDatasetPath: String) {
-    val csv = File("../csv/healthcare_dataset.csv")
-    val csvOutput = File("../csv/dataset_hashed.csv")
+    val csv = File("sandbox/csv/healthcare_dataset.csv")
+    val csvOutput = File("sandbox/csv/dataset_hashed.csv")
     val handleCSV = csv.readLines()
 
     val attributesToHash = attributes.filter { it.value["type"] == "randomize_identifier" }.keys
@@ -41,18 +41,18 @@ fun initialHash(attributes: Map<String, Map<String, String>>, inputDatasetPath: 
     }
 }
 
-fun main() {
+fun main(trustLevel: Int): ByteArray {
     //Loading config from yaml file
-    val yamlFile = File("../csv/data_policy.yaml")
+    val yamlFile = File("sandbox/csv/data_policy.yaml")
     val yaml = Yaml()
     val configMap: Map<String, Any> = yaml.load(yamlFile.inputStream())
     val attributes = configMap["attributes"] as Map<String, Map<String, String>>
 
     //Hashing doctor, patient names
-    initialHash(attributes, "../csv/healthcare_dataset.csv")
+    initialHash(attributes, "sandbox/csv/healthcare_dataset.csv")
 
     //Use hashed csv file :)
-    val csv = File("../csv/dataset_hashed.csv")
+    val csv = File("sandbox/csv/dataset_hashed.csv")
     val data = Data.create(csv, StandardCharsets.UTF_8, ',')
 
     //Set type of attr based yaml
@@ -210,10 +210,12 @@ fun main() {
     val anonymizer = ARXAnonymizer()
     val result = anonymizer.anonymize(data, config)
 
-
-    result.output?.save("patients_anonymized.csv", ',') ?: run {
+    println("Creating result file")
+    result.output?.save("sandbox/csv/patients_anonymized.csv", ',') ?: run {
         println("Something goes wrong :/")
     }
-
+    val resultFile = File("sandbox/csv/patients_anonymized.csv").readBytes()
     println("Complete, trust level: $trustLevel!")
+
+    return resultFile
 }

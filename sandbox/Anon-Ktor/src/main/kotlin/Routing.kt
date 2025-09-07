@@ -21,10 +21,15 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.api.ExposedConnection
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
+<<<<<<< HEAD
 import javax.sql.rowset.serial.SerialBlob
 import java.sql.Blob
 import java.sql.Connection
 import javax.sql.DataSource
+=======
+import java.io.File
+import java.nio.file.Paths
+>>>>>>> 0139dc36fa6f33d3030fdcf15f619c0f159492e9
 
 fun Application.configureRouting(config: JWTConfig) {
     routing {
@@ -147,17 +152,31 @@ fun Application.configureRouting(config: JWTConfig) {
                 }
 
                 // only fetch the file if user passes trust check
-                val csvBytes: ByteArray? = transaction {
+                val file = transaction {
                     Files.select { Files.fileName eq name }
-                        .map { it[Files.filedata] }  // <- bez .bytes
                         .singleOrNull()
                 } ?: return@get call.respondText(
                     "File not found",
                     status = HttpStatusCode.NotFound
                 )
 
+                val yamlData = file[Files.anonymRules].bytes
+                val csvData = file[Files.filedata].bytes
+
+                File("sandbox/csv/data_policy.yaml").apply {
+                    parentFile?.mkdirs()
+                    writeBytes(yamlData)
+                }
+
+                File("sandbox/csv/healthcare_dataset.csv").apply {
+                    parentFile?.mkdirs()
+                    writeBytes(csvData)
+                }
+
+                val anonymized = main(userTrust)
+
                 call.respondBytes(
-                    csvBytes,
+                    anonymized,
                     contentType = ContentType.Text.CSV,
                     status = HttpStatusCode.OK
                 )
