@@ -83,16 +83,6 @@ fun Application.configureRouting(config: JWTConfig) {
             call.respond(mapOf("tables" to datasets))
         }
 
-        get("/datasets/download") {
-            val name = call.parameters["name"] ?: return@get call.respondText("Missing name", status = HttpStatusCode.BadRequest)
-            val csvBytes = transaction {
-                Files.select { Files.fileName eq name }
-                    .map { it[Files.filedata].bytes }
-                    .singleOrNull() as ByteArray
-            }
-            call.respondBytes(csvBytes, contentType = ContentType.Text.CSV, status = HttpStatusCode.OK)
-        }
-
         authenticate("jwt-auth") {
             get("/me") {
                 val principal = call.principal<JWTPrincipal>()
@@ -118,6 +108,49 @@ fun Application.configureRouting(config: JWTConfig) {
                         lastName = user[Users.lastName],
                         trustLevel = user[Users.trustLevel]
                     )
+                )
+            }
+
+            get("/datasets/download") {
+                val name = call.parameters["name"] ?: return@get call.respondText(
+                    "Missing name",
+                    status = HttpStatusCode.BadRequest
+                )
+
+                val requiredTrust = call.parameters["trust"]?.toIntOrNull()
+                    ?: return@get call.respondText(
+                        "Missing or invalid trust level",
+                        status = HttpStatusCode.BadRequest
+                    )
+
+                // extract user trust level from the JWT
+                val principal = call.principal<JWTPrincipal>()
+                    ?: return@get call.respond(HttpStatusCode.Unauthorized)
+
+                val userTrust = principal.payload.getClaim("trustLevel").asInt()
+
+                // compare trust levels
+                if (userTrust < requiredTrust) {
+                    return@get call.respondText(
+                        "Insufficient trust level",
+                        status = HttpStatusCode.Forbidden
+                    )
+                }
+
+                // only fetch the file if user passes trust check
+                val csvBytes = transaction {
+                    Files.select { Files.fileName eq name }
+                        .map { it[Files.filedata].bytes }
+                        .singleOrNull() as? ByteArray
+                } ?: return@get call.respondText(
+                    "File not found",
+                    status = HttpStatusCode.NotFound
+                )
+
+                call.respondBytes(
+                    csvBytes,
+                    contentType = ContentType.Text.CSV,
+                    status = HttpStatusCode.OK
                 )
             }
         }
