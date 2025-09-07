@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS files (
     id SERIAL PRIMARY KEY,
     filename TEXT NOT NULL,
     filedata BYTEA NOT NULL,
+    description TEXT, 
     anonym_rules BYTEA,
     uploaded_at TIMESTAMP DEFAULT NOW()
 );

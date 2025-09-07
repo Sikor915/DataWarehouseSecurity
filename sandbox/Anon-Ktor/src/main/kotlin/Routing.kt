@@ -3,19 +3,28 @@ package pl.polsl.sikorfalf
 import com.auth0.jwt.JWT
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.http.content.streamProvider
 import io.ktor.server.application.*
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
+import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.PipelineContext
 import org.jetbrains.annotations.Debug
 import pl.polsl.sikorfalf.*
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.statements.api.ExposedConnection
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
+import javax.sql.rowset.serial.SerialBlob
+import java.sql.Blob
+import java.sql.Connection
+import javax.sql.DataSource
 
 fun Application.configureRouting(config: JWTConfig) {
     routing {
@@ -138,10 +147,10 @@ fun Application.configureRouting(config: JWTConfig) {
                 }
 
                 // only fetch the file if user passes trust check
-                val csvBytes = transaction {
+                val csvBytes: ByteArray? = transaction {
                     Files.select { Files.fileName eq name }
-                        .map { it[Files.filedata].bytes }
-                        .singleOrNull() as? ByteArray
+                        .map { it[Files.filedata] }  // <- bez .bytes
+                        .singleOrNull()
                 } ?: return@get call.respondText(
                     "File not found",
                     status = HttpStatusCode.NotFound
@@ -197,6 +206,54 @@ fun Application.configureRouting(config: JWTConfig) {
                 }
                 call.respondText("Trust level updated", status = HttpStatusCode.OK)
             }
+
+            post("/files/upload") {
+                val multipart = call.receiveMultipart()
+                var csvBytes: ByteArray? = null
+                var yamlBytes: ByteArray? = null
+                var filename: String? = null
+                var description: String? = null
+
+                multipart.forEachPart { part ->
+                    when (part) {
+                        is PartData.FormItem -> {
+                            when (part.name) {
+                                "description" -> description = part.value
+                                "filename" -> filename = part.value
+                            }
+                        }
+                        is PartData.FileItem -> {
+                            val bytes = part.streamProvider().readBytes()
+                            when (part.name) {
+                                "fileData" -> csvBytes = bytes
+                                "anonymRules" -> yamlBytes = bytes
+                            }
+                        }
+                        else -> Unit
+                    }
+                    part.dispose()
+                }
+
+                if (csvBytes == null || yamlBytes == null || filename.isNullOrBlank()) {
+                    call.respondText(
+                        "Missing CSV file, YAML file, or filename",
+                        status = HttpStatusCode.BadRequest
+                    )
+                    return@post
+                }
+
+                transaction {
+                    Files.insert {
+                        it[fileName] = filename
+                        it[filedata] = csvBytes
+                        it[anonymRules] = yamlBytes
+                        it[description] = description
+                    }
+                }
+
+                call.respondText("Files uploaded successfully", status = HttpStatusCode.OK)
+            }
+
         }
     }
 }
