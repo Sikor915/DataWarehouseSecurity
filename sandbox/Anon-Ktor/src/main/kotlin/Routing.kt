@@ -122,5 +122,48 @@ fun Application.configureRouting(config: JWTConfig) {
             }
         }
 
+        authenticate("jwt-auth-admin") {
+            get("/users") {
+                val tokenId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asInt()
+
+                val users = transaction {
+                    Users.selectAll().map { row ->
+                        mapOf(
+                            "id" to row[Users.id].value,
+                            "firstName" to row[Users.firstName],
+                            "lastName" to row[Users.lastName],
+                            "email" to row[Users.email],
+                            "trustLevel" to row[Users.trustLevel]
+                        )
+                    }.filter { it["id"] != tokenId }
+                }
+
+                call.respond(users)
+            }
+
+            put("/users/{id}/trust") {
+                val tokenId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asInt()
+                val userIdParam = call.parameters["id"]?.toIntOrNull()
+                val body = call.receive<Map<String, Int>>()
+                val newTrust = body["trustLevel"]
+
+                if (userIdParam == null || newTrust == null) {
+                    call.respondText("Invalid request", status = HttpStatusCode.BadRequest)
+                    return@put
+                }
+
+                if (userIdParam == tokenId) {
+                    call.respondText("Cannot change your own trust level", status = HttpStatusCode.Forbidden)
+                    return@put
+                }
+
+                transaction {
+                    Users.update({ Users.id eq userIdParam }) {
+                        it[trustLevel] = newTrust
+                    }
+                }
+                call.respondText("Trust level updated", status = HttpStatusCode.OK)
+            }
+        }
     }
 }

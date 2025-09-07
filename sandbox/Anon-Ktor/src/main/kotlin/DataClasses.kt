@@ -25,4 +25,3 @@ data class MeResponse(
     val lastName: String,
     val trustLevel: Int
 )
-

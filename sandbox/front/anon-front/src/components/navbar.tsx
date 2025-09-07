@@ -41,6 +41,16 @@ const Navbar: React.FC = () => {
         <li>
           <Link to="/datasets">Datasets</Link>
         </li>
+        {trustLevel === 5 && (
+          <>
+            <li>
+              <Link to="/upload">Upload</Link>
+            </li>
+            <li>
+              <Link to="/grant">Grant</Link>
+            </li>
+          </>
+        )}
         {token && (
           <li>
             <button

@@ -1,0 +1,47 @@
+.grant-container {
+  padding: 2rem;
+  text-align: center;
+}
+
+.grant-cards {
+  display: flex;
+  flex-direction: column; /* kafelki jeden pod drugim */
+  gap: 1.5rem;            /* odstęp między kartami */
+  margin-top: 3rem;
+  align-items: center;     /* wyśrodkowanie kart */
+}
+
+.grant-card {
+  background-color: #f5f5f5;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 400px;             /* szersze kafelki */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.grant-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+}
+
+.grant-card h2 {
+  margin-bottom: 1.2rem;
+  color: #222;
+  font-size: 1.5rem;
+}
+
+.grant-card p, .grant-card select {
+  color: #444;
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.grant-card select {
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}

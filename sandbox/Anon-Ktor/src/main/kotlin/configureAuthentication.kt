@@ -63,8 +63,7 @@ fun Application.configureAuthentication(config: JWTConfig) {
             validate { credential ->
                 val userId = credential.payload.getClaim("userId").asInt()
                 val trustLevel = credential.payload.getClaim("trustLevel").asInt()
-                // traktujemy trustLevel >= 2 jako admin (przykład)
-                if (userId != null && trustLevel != null && trustLevel >= 2) {
+                if (userId != null && trustLevel != null && trustLevel >= 5) {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
