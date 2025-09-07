@@ -10,6 +10,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.PipelineContext
+import org.jetbrains.annotations.Debug
 import pl.polsl.sikorfalf.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -73,13 +74,12 @@ fun Application.configureRouting(config: JWTConfig) {
         }
 
         get("/datasets/names") {
-            /*val datasets: List<String> = transaction {
-                Files.select(Files.fileName).map{
-                    it[Files.fileName]
-                }
+            val datasets: List<String> = transaction {
+                Files.slice(Files.fileName)
+                    .selectAll()
+                    .map { it[Files.fileName] }
             }
-            call.respond(datasets)*/
-            call.respond("")
+            call.respond(mapOf("tables" to datasets))
         }
 
         authenticate("jwt-auth") {
