@@ -6,8 +6,8 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 
 object Files : IntIdTable("files") {
     val fileName = text("filename")
-    val filedata = binary("filedata")        // BYTEA w PostgreSQL
-    val anonymRules = binary("anonym_rules") // BYTEA w PostgreSQL
-    val description = text("description").nullable()
+    val descript = text("description").nullable()
+    val filedata = blob("filedata")        // BYTEA w PostgreSQL
+    val anonymRules = blob("anonym_rules") // BYTEA w PostgreSQ
     val uploadedAt = timestamp("uploaded_at")
 }

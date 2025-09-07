@@ -38,7 +38,8 @@ dependencies {
     //Anon lib
     implementation(files("../libs/libarx-3.9.1.jar"))
     //Logging
-    implementation("ch.qos.logback:logback-classic:$logback_version")
+//    implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("org.slf4j:slf4j-nop:2.0.17")
     //Unused
     implementation("io.ktor:ktor-server-thymeleaf:3.2.3")
     //Core and testing

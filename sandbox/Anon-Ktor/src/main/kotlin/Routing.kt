@@ -18,6 +18,7 @@ import io.ktor.util.pipeline.PipelineContext
 import org.jetbrains.annotations.Debug
 import pl.polsl.sikorfalf.*
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.statements.api.ExposedConnection
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
@@ -258,12 +259,14 @@ fun Application.configureRouting(config: JWTConfig) {
                     return@post
                 }
 
+
+
                 transaction {
                     Files.insert {
-                        it[fileName] = filename
-                        it[filedata] = csvBytes
-                        it[anonymRules] = yamlBytes
-                        it[description] = description
+                        it[fileName] = filename!!
+                        it[descript] = description
+                        it[filedata] = ExposedBlob(csvBytes)
+                        it[anonymRules] = ExposedBlob(yamlBytes)
                     }
                 }
 

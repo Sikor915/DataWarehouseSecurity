@@ -1,0 +1,4 @@
+Run from cmd /Anon-Ktor
+./gradlew shadowJar
+java -jar build/libs/Anon-Ktor-all.jar
+
