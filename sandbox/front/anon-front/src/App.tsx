@@ -7,7 +7,6 @@ function PrivateRoute() {
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/login";
-import Dashboard from "./pages/dashboard";
 import NotFoundPage from "./pages/notfound";
 import Register from "./pages/register";
 import Home from "./pages/home";
@@ -23,7 +22,6 @@ export default function App() {
         <Route element={<PrivateRoute />}>
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/datasets" element={<Datasets />}/>
         </Route>
         <Route path="*" element={<NotFoundPage />} />

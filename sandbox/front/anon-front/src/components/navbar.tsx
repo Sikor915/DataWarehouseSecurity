@@ -25,9 +25,6 @@ const Navbar: React.FC = () => {
           <Link to="/home">Home</Link>
         </li>
         <li>
-          <Link to="/dashboard">Dashboard</Link>
-        </li>
-        <li>
           <Link to="/datasets">Datasets</Link>
         </li>
         {token && (
