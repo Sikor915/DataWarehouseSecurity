@@ -10,13 +10,13 @@ plugins {
 group = "pl.polsl.sikor-falf"
 version = "0.0.1"
 
-//application {
-//    mainClass = "io.ktor.server.netty.EngineMain"
-//}
-
 application {
-    mainClass = "pl.polsl.sikorfalf.ArxKt"
+    mainClass = "io.ktor.server.netty.EngineMain"
 }
+
+//application {
+//    mainClass = "pl.polsl.sikorfalf.ArxKt"
+//}
 
 repositories {
     mavenLocal()
@@ -36,7 +36,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:3.2.3")
     implementation("io.ktor:ktor-server-auth-jwt:3.2.3")
     //Anon lib
-    implementation(files("../libs/libarx-3.9.1.jar"))
+    compileOnly(files("../libs/libarx-3.9.1.jar"))
     //Logging
     implementation("ch.qos.logback:logback-classic:$logback_version")
     //Unused

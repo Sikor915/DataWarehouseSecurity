@@ -12,6 +12,20 @@ const Navbar: React.FC = () => {
     navigate("/login");
   };
 
+  //JWT decode function does not work :((
+  function getTrustLevel(token: string | null): number {
+  if (!token) return 0;
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    return decoded.trustLevel ?? 0; // <-- zmienione na trustLevel
+  } catch {
+    return 0;
+  }
+}
+
+  const trustLevel = getTrustLevel(token);
+
   return (
     <nav className="navbar">
       <div className="logo">

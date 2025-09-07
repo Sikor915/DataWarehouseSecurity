@@ -11,6 +11,8 @@ import NotFoundPage from "./pages/notfound";
 import Register from "./pages/register";
 import Home from "./pages/home";
 import Datasets from "./pages/datasets";
+import Upload from "./pages/upload";
+import Grant from "./pages/grant";
 
 export default function App() {
   return (
@@ -23,6 +25,8 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
             <Route path="/datasets" element={<Datasets />}/>
+            <Route path="/upload" element={<Upload />}/>
+            <Route path="/grant" element={<Grant />}/>
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
