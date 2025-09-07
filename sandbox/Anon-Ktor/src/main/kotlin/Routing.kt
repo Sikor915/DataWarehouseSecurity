@@ -21,15 +21,12 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.api.ExposedConnection
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
-<<<<<<< HEAD
 import javax.sql.rowset.serial.SerialBlob
 import java.sql.Blob
 import java.sql.Connection
 import javax.sql.DataSource
-=======
 import java.io.File
 import java.nio.file.Paths
->>>>>>> 0139dc36fa6f33d3030fdcf15f619c0f159492e9
 
 fun Application.configureRouting(config: JWTConfig) {
     routing {
