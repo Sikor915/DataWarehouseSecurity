@@ -13,7 +13,7 @@
 4||10|T|G</Grants>
       <IntrospectionStateNumber>760</IntrospectionStateNumber>
       <ServerVersion>17.6</ServerVersion>
-      <StartupTime>1757334581</StartupTime>
+      <StartupTime>1757334930</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -4139,7 +4139,7 @@ true posixrules
       <LastIntrospectionL2Xid>760</LastIntrospectionL2Xid>
       <LastIntrospectionL3Xid>760</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-09-08.12:30:19</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-09-08.12:40:15</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>532</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
@@ -4199,20 +4199,26 @@ true posixrules
       <StoredType>bytea|0s</StoredType>
       <TypeId>17</TypeId>
     </column>
-    <column id="273" parent="268" name="anonym_rules">
+    <column id="273" parent="268" name="description">
       <Position>4</Position>
+      <StateNumber>740</StateNumber>
+      <StoredType>text|0s</StoredType>
+      <TypeId>25</TypeId>
+    </column>
+    <column id="274" parent="268" name="anonym_rules">
+      <Position>5</Position>
       <StateNumber>740</StateNumber>
       <StoredType>bytea|0s</StoredType>
       <TypeId>17</TypeId>
     </column>
-    <column id="274" parent="268" name="uploaded_at">
+    <column id="275" parent="268" name="uploaded_at">
       <DefaultExpression>now()</DefaultExpression>
-      <Position>5</Position>
+      <Position>6</Position>
       <StateNumber>740</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <index id="275" parent="268" name="files_pkey">
+    <index id="276" parent="268" name="files_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16393</ObjectId>
@@ -4221,14 +4227,14 @@ true posixrules
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="276" parent="268" name="files_pkey">
+    <key id="277" parent="268" name="files_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16394</ObjectId>
       <Primary>1</Primary>
       <StateNumber>740</StateNumber>
       <UnderlyingIndexId>16393</UnderlyingIndexId>
     </key>
-    <column id="277" parent="269" name="id">
+    <column id="278" parent="269" name="id">
       <DefaultExpression>nextval(&apos;users_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -4237,42 +4243,42 @@ true posixrules
       <SequenceId>16395</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="278" parent="269" name="first_name">
+    <column id="279" parent="269" name="first_name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>741</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="279" parent="269" name="last_name">
+    <column id="280" parent="269" name="last_name">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>741</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="280" parent="269" name="password_hash">
+    <column id="281" parent="269" name="password_hash">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>741</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="281" parent="269" name="email">
+    <column id="282" parent="269" name="email">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>741</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="282" parent="269" name="trust_level">
+    <column id="283" parent="269" name="trust_level">
       <DefaultExpression>1</DefaultExpression>
       <Position>6</Position>
       <StateNumber>741</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <index id="283" parent="269" name="users_pkey">
+    <index id="284" parent="269" name="users_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16403</ObjectId>
@@ -4281,7 +4287,7 @@ true posixrules
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="284" parent="269" name="users_email_key">
+    <index id="285" parent="269" name="users_email_key">
       <ColNames>email</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16405</ObjectId>
@@ -4292,14 +4298,14 @@ true posixrules
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="285" parent="269" name="users_pkey">
+    <key id="286" parent="269" name="users_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16404</ObjectId>
       <Primary>1</Primary>
       <StateNumber>741</StateNumber>
       <UnderlyingIndexId>16403</UnderlyingIndexId>
     </key>
-    <key id="286" parent="269" name="users_email_key">
+    <key id="287" parent="269" name="users_email_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16406</ObjectId>
       <StateNumber>741</StateNumber>

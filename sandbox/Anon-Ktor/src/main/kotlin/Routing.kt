@@ -87,12 +87,12 @@ fun Application.configureRouting(config: JWTConfig) {
         }
 
         get("/datasets/names") {
-            val datasets: List<String> = transaction {
-                Files.slice(Files.fileName)
+            val datasets: List<Pair<String, String?>> = transaction {
+                Files.slice(Files.fileName, Files.descript)
                     .selectAll()
-                    .map { it[Files.fileName] }
+                    .map { it[Files.fileName] to it[Files.descript]}
             }
-            call.respond(mapOf("tables" to datasets))
+            call.respond(datasets)
         }
 
         authenticate("jwt-auth") {
@@ -171,7 +171,7 @@ fun Application.configureRouting(config: JWTConfig) {
                     writeBytes(csvData)
                 }
 
-                val anonymized = main(userTrust)
+                val anonymized = main(requiredTrust)
 
                 call.respondBytes(
                     anonymized,
