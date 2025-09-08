@@ -9,7 +9,7 @@ interface UserData {
   trustLevel: number;
 }
 
-const trustLevelNames = ["Novice", "Learner", "Contributor", "Trusted", "Admin"];
+const trustLevelNames = ["Novice", "Learner", "Regular", "Trusted", "Admin"];
 
 const Home: React.FC = () => {
   const [user, setUser] = useState<UserData | null>(null);
@@ -86,9 +86,8 @@ const Home: React.FC = () => {
           <div className="card">
             <h2>Next Steps</h2>
             <p>
-              <li>Integrate real-time notifications for data updates</li>
-              <li>Enhance data anonymization policies with configurable settings</li>
-              <li>Develop user-friendly dashboards for visualizing anonymized data</li>
+              <li>Create on-site data viewing- allow users to see and interact with data directly on the platform.</li>
+              <li>Create tools- develop useful utilities to analyze, visualize, or manage the data efficiently.</li>
             </p>
           </div>
         </div>

@@ -10,7 +10,7 @@ interface UserData {
   trustLevel: number;
 }
 
-const trustLevelNames = ["Novice", "Learner", "Contributor", "Trusted", "Admin"];
+const trustLevelNames = ["Novice", "Learner", "Regular", "Trusted", "Admin"];
 
 const Grant: React.FC = () => {
   const [users, setUsers] = useState<UserData[]>([]);

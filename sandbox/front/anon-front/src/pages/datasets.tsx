@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import Navbar from "../components/navbar.tsx";
 
-const TRUST_LEVELS = ["Novice", "Learner", "Contributor", "Trusted", "Admin"] as const;
+const TRUST_LEVELS = ["Novice", "Learner", "Regular", "Trusted", "Admin"] as const;
 
 const TRUST_MAP: Record<typeof TRUST_LEVELS[number], number> = {
     Novice: 1,
     Learner: 2,
-    Contributor: 3,
+    Regular: 3,
     Trusted: 4,
     Admin: 5,
 };
@@ -75,7 +75,7 @@ export default function DatasetsPage() {
                     <p>Loading…</p>
                 ) : (
                     datasets.map((dataset) => (
-                        <div key={dataset.name}>
+                        <div key={dataset.name} >
                             <h2>{dataset.name}</h2>
                             {dataset.description && <p>{dataset.description}</p>}
                             <div className="cards-container">

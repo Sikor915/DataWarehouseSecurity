@@ -1,10 +1,19 @@
-/* Container główny strony */
+.dataset-container {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 1000px;
+    border: 1px solid #ddd;
+}
+
 .home-container {
     padding: 2rem;
     text-align: center;
 }
 
-/* Kontener kart – centralny układ i responsywność */
 .cards-container {
     display: flex;
     flex-wrap: wrap;
@@ -13,7 +22,6 @@
     margin-top: 3rem;
 }
 
-/* Pojedyncza karta – wygląd, cienie, animacje */
 .card {
     background-color: #f5f5f5;
     padding: 2rem;
@@ -49,7 +57,6 @@
     margin-bottom: 0.5rem;
 }
 
-/* Responsywność: ustaw karty w kolumnie na węższych ekranach */
 @media (max-width: 600px) {
     .cards-container {
         flex-direction: column;
@@ -60,3 +67,4 @@
         max-width: 320px;
     }
 }
+
