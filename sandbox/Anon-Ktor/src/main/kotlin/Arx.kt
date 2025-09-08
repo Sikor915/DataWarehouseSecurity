@@ -166,14 +166,14 @@ fun main(trustLevel: Int): ByteArray {
 
             "year" -> {
                 for (v in uniqueValues) {
-                    val year = v.take(4) // YYYY
+                    val year = v.take(4)
                     hierarchy.add(v, year)
                 }
             }
 
             "year-month" -> {
                 for (v in uniqueValues) {
-                    val ym = v.take(7) // YYYY-MM
+                    val ym = v.take(7)
                     hierarchy.add(v, ym)
                 }
             }
@@ -182,7 +182,7 @@ fun main(trustLevel: Int): ByteArray {
                 for (v in uniqueValues) {
                     val parts = v.split("-")
                     if (parts.size >= 2) {
-                        val ym = "${parts[0]}-${parts[1]}" // YYYY-MM
+                        val ym = "${parts[0]}-${parts[1]}"
                         hierarchy.add(v, ym)
                     } else {
                         hierarchy.add(v, v, "*")

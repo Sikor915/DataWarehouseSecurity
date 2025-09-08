@@ -45,10 +45,8 @@ fun Application.configureRouting(config: JWTConfig) {
                 return@post
             }
 
-            // Hashowanie hasła
             val hashedPassword = BCrypt.hashpw(request.password, BCrypt.gensalt())
 
-            // Dodanie nowego użytkownika
             val userId = transaction {
                 Users.insertAndGetId { row ->
                     row[firstName] = request.firstName
@@ -59,7 +57,6 @@ fun Application.configureRouting(config: JWTConfig) {
                 }.value
             }
 
-            // Generowanie tokena JWT
             val token = generateToken(config, userId, 1)
 
             call.respond(HttpStatusCode.Created, mapOf("message" to "Rejestracja udana. Możesz się teraz zalogować."))
@@ -135,13 +132,11 @@ fun Application.configureRouting(config: JWTConfig) {
                         status = HttpStatusCode.BadRequest
                     )
 
-                // extract user trust level from the JWT
                 val principal = call.principal<JWTPrincipal>()
                     ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
                 val userTrust = principal.payload.getClaim("trustLevel").asInt()
 
-                // compare trust levels
                 if (userTrust < requiredTrust) {
                     return@get call.respondText(
                         "Insufficient trust level",
@@ -149,7 +144,6 @@ fun Application.configureRouting(config: JWTConfig) {
                     )
                 }
 
-                // only fetch the file if user passes trust check
                 val file = transaction {
                     Files.select { Files.fileName eq name }
                         .singleOrNull()

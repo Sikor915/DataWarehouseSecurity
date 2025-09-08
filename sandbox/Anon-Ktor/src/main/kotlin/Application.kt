@@ -14,7 +14,7 @@ fun Application.module() {
     initDatabase()
 
     install(CORS) {
-        anyHost() // do testów lokalnych. W produkcji lepiej wpisz konkretny origin np. "http://localhost:3000"
+        anyHost()
         allowHeader(HttpHeaders.ContentType)
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Get)
