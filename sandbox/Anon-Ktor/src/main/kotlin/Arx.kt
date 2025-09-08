@@ -1,7 +1,5 @@
 package pl.polsl.sikorfalf
 
-import kotlinx.coroutines.flow.asFlow
-import org.apache.hadoop.util.GenericsUtil.getClass
 import org.deidentifier.arx.ARXConfiguration
 import org.deidentifier.arx.ARXAnonymizer
 import org.deidentifier.arx.Data
@@ -9,7 +7,6 @@ import org.deidentifier.arx.AttributeType
 import org.deidentifier.arx.DataHandle
 import org.deidentifier.arx.criteria.DistinctLDiversity
 import org.deidentifier.arx.criteria.KAnonymity
-import org.deidentifier.arx.criteria.LDiversity
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -70,7 +67,6 @@ fun main(trustLevel: Int): ByteArray {
     val anonymPolicyAny = (configMap["anonymization_policy"] as Map<*, *>)["trust_levels"]
     val anonymPolicy = anonymPolicyAny as Map<Int, Map<String, Any>>
 
-    val trustLevel = 2
     val levelConfig = anonymPolicy[trustLevel] ?: throw IllegalStateException("Nie znaleziono konfiguracji dla trustLevel=$trustLevel")
 
     //Cofiguration k-anon and l-div

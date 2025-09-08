@@ -3,7 +3,6 @@ import Navbar from "../components/navbar.tsx";
 
 const TRUST_LEVELS = ["Novice", "Learner", "Contributor", "Trusted", "Admin"] as const;
 
-// map string trust levels to ints
 const TRUST_MAP: Record<typeof TRUST_LEVELS[number], number> = {
     Novice: 1,
     Learner: 2,
@@ -12,20 +11,36 @@ const TRUST_MAP: Record<typeof TRUST_LEVELS[number], number> = {
     Admin: 5,
 };
 
+interface Dataset {
+    name: string;
+    description: string | null;
+}
+
 export default function DatasetsPage() {
-    const [tables, setTables] = useState<string[]>([]);
+    const [datasets, setDatasets] = useState<Dataset[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch('http://localhost:8080/datasets/names')
             .then(res => res.json())
-            .then((data: { tables: string[] }) => setTables(data.tables))
+            .then((data: any[]) => {
+                if (Array.isArray(data)) {
+                    const mapped = data.map(item => ({
+                        name: item.first,
+                        description: item.second
+                    }));
+                    setDatasets(mapped);
+                } else {
+                    console.error('Expected array but got:', typeof data, data);
+                    setDatasets([]);
+                }
+            })
             .catch(err => console.error(err))
             .finally(() => setLoading(false));
     }, []);
 
     const handleDownload = (table: string, trustLevel: typeof TRUST_LEVELS[number]) => {
-        const trustInt = TRUST_MAP[trustLevel]; // convert string → int
+        const trustInt = TRUST_MAP[trustLevel];
 
         fetch(`http://localhost:8080/datasets/download?name=${encodeURIComponent(table)}&trust=${trustInt}`, {
             method: 'GET',
@@ -59,15 +74,16 @@ export default function DatasetsPage() {
                 {loading ? (
                     <p>Loading…</p>
                 ) : (
-                    tables.map((table) => (
-                        <div key={table}>
-                            <h2>{table}</h2>
+                    datasets.map((dataset) => (
+                        <div key={dataset.name}>
+                            <h2>{dataset.name}</h2>
+                            {dataset.description && <p>{dataset.description}</p>}
                             <div className="cards-container">
                                 {TRUST_LEVELS.map((level) => (
-                                    <div key={level} className="card">
+                                    <div key={`${dataset.name}-${level}`} className="card">
                                         <h3 style={{color: "black"}}>{level}</h3>
                                         <button
-                                            onClick={() => handleDownload(table, level)}
+                                            onClick={() => handleDownload(dataset.name, level)}
                                             style={{
                                                 padding: "6px 16px",
                                                 backgroundColor: "#001f3f",
