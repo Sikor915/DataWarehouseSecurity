@@ -1,36 +1,39 @@
 package pl.polsl.sikorfalf
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-//import io.ktor.serialization.kotlinx.json.json
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.server.application.*
-import io.ktor.server.auth.Authentication
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.jwt.jwt
-import io.ktor.server.auth.principal
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
-import kotlinx.serialization.Serializable
-import java.util.Date
+import io.ktor.server.plugins.cors.routing.CORS
+
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
 
 fun Application.module() {
+    initDatabase()
 
-    @Serializable
-    data class User(val username: String, val password: String)
+    install(CORS) {
+        anyHost() // do testów lokalnych. W produkcji lepiej wpisz konkretny origin np. "http://localhost:3000"
+        allowHeader(HttpHeaders.ContentType)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Put)
+        allowMethod(HttpMethod.Options)
+        allowHeader(HttpHeaders.Authorization)
+    }
 
+    val jwtConfig = environment.config.config("ktor.jwt").let {
+        JWTConfig(
+            realm = it.property("realm").getString(),
+            secret = it.property("secret").getString(),
+            issuer = it.property("issuer").getString(),
+            audience = it.property("audience").getString(),
+            tokenExpiration = it.property("expiry").getString().toLong()
+        )
+    }
     configureSerialization()
-    configureRouting()
-    //configureAuthentication()
-    //configureAuthentication()
+    configureAuthentication(config = jwtConfig)
+    configureRouting(jwtConfig)
 }
 

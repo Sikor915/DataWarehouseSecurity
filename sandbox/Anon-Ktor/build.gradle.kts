@@ -14,6 +14,10 @@ application {
     mainClass = "io.ktor.server.netty.EngineMain"
 }
 
+//application {
+//    mainClass = "pl.polsl.sikorfalf.ArxKt"
+//}
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -32,9 +36,10 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:3.2.3")
     implementation("io.ktor:ktor-server-auth-jwt:3.2.3")
     //Anon lib
-    compileOnly(files("../libs/libarx-3.9.1.jar"))
+    implementation(files("../libs/libarx-3.9.1.jar"))
     //Logging
-    implementation("ch.qos.logback:logback-classic:$logback_version")
+//    implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("org.slf4j:slf4j-nop:2.0.17")
     //Unused
     implementation("io.ktor:ktor-server-thymeleaf:3.2.3")
     //Core and testing
@@ -42,4 +47,16 @@ dependencies {
     implementation("io.ktor:ktor-server-config-yaml")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    //Database
+    implementation("org.jetbrains.exposed:exposed-core:0.53.0")
+    implementation("org.jetbrains.exposed:exposed-dao:0.53.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.53.0")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.53.0")
+    //Password encrypt
+    implementation("org.mindrot:jbcrypt:0.4")
+    //Postgres dependency
+    implementation("org.postgresql:postgresql:42.7.3")
+    //CORS for frontend
+    implementation("io.ktor:ktor-server-cors-jvm:2.3.5")
+    implementation("org.yaml:snakeyaml:2.2")
 }
