@@ -25,7 +25,7 @@
   cursor: pointer;
   transition: background-color 0.3s, border-color 0.3s;
   position: relative;
-  color: black; /* zmieniono kolor tekstu na czarny */
+  color: black;
 }
 
 .dropzone.selected {

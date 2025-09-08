@@ -57,7 +57,7 @@
   background: #0056b3;
 }
 .register-text {
-  color: #000; /* czarny tekst */
+  color: #000;
   margin-top: 15px;
   text-align: center;
 }
@@ -70,6 +70,6 @@
 }
 
 .register-link:hover {
-  color: #0056b3; /* ciemniejszy niebieski przy hover */
+  color: #0056b3; 
   text-decoration: underline;
 }

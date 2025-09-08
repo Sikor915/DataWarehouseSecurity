@@ -5,17 +5,17 @@
 
 .grant-cards {
   display: flex;
-  flex-direction: column; /* kafelki jeden pod drugim */
-  gap: 1.5rem;            /* odstęp między kartami */
+  flex-direction: column; 
+  gap: 1.5rem; 
   margin-top: 3rem;
-  align-items: center;     /* wyśrodkowanie kart */
+  align-items: center; 
 }
 
 .grant-card {
   background-color: #f5f5f5;
   padding: 2rem;
   border-radius: 12px;
-  width: 400px;             /* szersze kafelki */
+  width: 400px;        
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s, box-shadow 0.3s;
 }

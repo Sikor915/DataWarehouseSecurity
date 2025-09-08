@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 export default function NotFoundPage() {
-  const token = localStorage.getItem("token"); // sprawdzamy, czy użytkownik jest zalogowany
+  const token = localStorage.getItem("token"); 
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>

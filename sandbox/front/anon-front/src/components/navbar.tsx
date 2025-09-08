@@ -1,11 +1,11 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./css/navbar.css";
-import logo from "../assets/logo.png"; // upewnij się, że ścieżka do logo jest poprawna
+import logo from "../assets/logo.png";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token"); // sprawdzamy, czy użytkownik zalogowany
+  const token = localStorage.getItem("token"); 
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -18,7 +18,7 @@ const Navbar: React.FC = () => {
   try {
     const payload = token.split('.')[1];
     const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-    return decoded.trustLevel ?? 0; // <-- zmienione na trustLevel
+    return decoded.trustLevel ?? 0;
   } catch {
     return 0;
   }

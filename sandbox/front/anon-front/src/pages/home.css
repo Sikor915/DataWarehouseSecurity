@@ -5,39 +5,39 @@
 
 .cards-container {
   display: flex;
-  gap: 2.5rem;           /* większy odstęp między kartami */
+  gap: 2.5rem;          
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 3rem;      /* więcej przestrzeni od góry */
+  margin-top: 3rem;     
 }
 
 .card {
   background-color: #f5f5f5;
-  padding: 2rem;          /* więcej przestrzeni wewnątrz */
-  border-radius: 12px;    /* trochę większe zaokrąglenie */
-  width: 280px;           /* nieco większa karta */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* mocniejszy cień */
+  padding: 2rem;         
+  border-radius: 12px;
+  width: 280px;    
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .card:hover {
-  transform: translateY(-7px); /* większy efekt uniesienia */
+  transform: translateY(-7px); 
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
 }
 
 .card h2 {
   margin-bottom: 1.2rem;
   color: #222;
-  font-size: 1.5rem;       /* większy nagłówek */
+  font-size: 1.5rem;  
 }
 
 .card p, .card ul {
   color: #444;
   text-align: left;
-  font-size: 1rem;         /* większy tekst */
-  line-height: 1.6;        /* lepsza czytelność */
+  font-size: 1rem;  
+  line-height: 1.6;    
 }
 
 .card ul li {
-  margin-bottom: 0.5rem;   /* odstęp między punktami listy */
+  margin-bottom: 0.5rem; 
 }
