@@ -152,6 +152,15 @@ fun Application.configureRouting(config: JWTConfig) {
                     status = HttpStatusCode.NotFound
                 )
 
+                if (requiredTrust == 5){
+                    val csvData = file[Files.filedata].bytes
+                    return@get call.respondBytes(
+                        csvData,
+                        contentType = ContentType.Text.CSV,
+                        status = HttpStatusCode.OK
+                    )
+                }
+
                 val yamlData = file[Files.anonymRules].bytes
                 val csvData = file[Files.filedata].bytes
 
